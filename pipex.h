@@ -6,7 +6,7 @@
 /*   By: mpena-zu <mpena-zu@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:15:29 by mpena-zu          #+#    #+#             */
-/*   Updated: 2025/04/24 15:07:10 by mpena-zu         ###   ########.fr       */
+/*   Updated: 2025/05/07 14:31:07 by mpena-zu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,14 @@
 # define PIPEX_H
 # include "ft_printf/ft_printf.h"
 # include "libft/libft.h"
+# include <unistd.h>
+# include <sys/types.h>
+# include <sys/wait.h>
+# include <stdio.h>
+# include <fcntl.h>
+
+void	child_time(char **argv, int *fd);
+void	father_time(char **argv, int *fd);
+void	print_error(void);
 
 #endif
