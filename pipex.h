@@ -6,7 +6,7 @@
 /*   By: mpena-zu <mpena-zu@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:15:29 by mpena-zu          #+#    #+#             */
-/*   Updated: 2025/05/07 16:43:54 by mpena-zu         ###   ########.fr       */
+/*   Updated: 2025/05/08 18:09:54 by mpena-zu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,6 @@
 
 void	child_time(char **argv, char **envp, int *fd);
 void	father_time(char **argv, char **envp, int *fd);
-void	print_error(void);
+void	print_error(char *message);
 
 #endif

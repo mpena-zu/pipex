@@ -6,7 +6,7 @@
 /*   By: mpena-zu <mpena-zu@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:14:58 by mpena-zu          #+#    #+#             */
-/*   Updated: 2025/05/07 16:49:13 by mpena-zu         ###   ########.fr       */
+/*   Updated: 2025/05/08 18:28:01 by mpena-zu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ char	*path(char **envp, char *cmd1)
 	char	*real_path;
 
 	i = 0;
-	while (ft_strncmp(envp[i], "PATH", 5) == 0)
+	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5) != 0)
 		i++;
 	paths = ft_split(envp[i] + 5, ':');
 	i = 0;
@@ -28,31 +28,29 @@ char	*path(char **envp, char *cmd1)
 	{
 		cut_paths = ft_strjoin(paths[i], "/");
 		real_path = ft_strjoin(cut_paths, cmd1);
-		free(cut_paths);
 		if (access(real_path, F_OK) == 0)
-		{
-			free(paths);
 			return (real_path);
-		}
-		free(real_path);
 		i++;
 	}
-	free(paths);
 	return (0);
 }
 
 void	command_time(char **envp, char **cmd1)
 {
-	int		i;
 	char	*path_time;
 
-	i = 0;
+	if (!cmd1 || !cmd1[0])
+		print_error("Error: empty command");
 	path_time = path(envp, cmd1[0]);
 	if (path_time == NULL)
-		print_error();
+	{
+		ft_putstr_fd("Command not found: ", 2);
+		ft_putstr_fd(cmd1[0], 2);
+		ft_putstr_fd("\n", 2);
+		exit(127);
+	}
 	if (execve(path_time, cmd1, envp) == -1)
-		print_error();
-	free(path_time);
+		print_error("execve error");
 }
 
 void	child_time(char **argv, char **envp, int *fd)
@@ -62,7 +60,7 @@ void	child_time(char **argv, char **envp, int *fd)
 
 	file1_fd = open(argv[1], O_RDONLY);
 	if (file1_fd == -1)
-		print_error();
+		print_error("Error opening input file");
 	dup2(file1_fd, STDIN_FILENO);
 	dup2(fd[1], STDOUT_FILENO);
 	close(file1_fd);
@@ -70,9 +68,8 @@ void	child_time(char **argv, char **envp, int *fd)
 	close(fd[1]);
 	cmd1 = ft_split(argv[2], ' ');
 	if (!cmd1 || !cmd1[0])
-		print_error();
+		print_error("Error command");
 	command_time(envp, cmd1);
-	free(cmd1);
 }
 
 void	father_time(char **argv, char **envp, int *fd)
@@ -82,7 +79,7 @@ void	father_time(char **argv, char **envp, int *fd)
 
 	file2_fd = open(argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	if (file2_fd == -1)
-		print_error();
+		print_error("Error opening output file");
 	dup2(fd[0], STDIN_FILENO);
 	dup2(file2_fd, STDOUT_FILENO);
 	close(file2_fd);
@@ -90,14 +87,13 @@ void	father_time(char **argv, char **envp, int *fd)
 	close(fd[1]);
 	cmd2 = ft_split(argv[3], ' ');
 	if (!cmd2 || !cmd2[0])
-		print_error();
+		print_error("Error command");
 	command_time(envp, cmd2);
-	free(cmd2);
 }
 
-void	print_error(void)
+void	print_error(char *message)
 {
-	perror("Error");
+	perror(message);
 	exit(1);
 }
 
@@ -113,13 +109,21 @@ int	main(int argc, char **argv, char **envp)
 		return (1);
 	}
 	if (pipe(fd) == -1)
-		print_error();
+		print_error("Pipe error");
 	pid = fork();
 	if (pid == -1)
-		print_error();
-	if (pid == 0)
-		child_time(argv, envp, fd);
-	waitpid(pid, NULL, 0);
-	father_time(argv, envp, fd);
+		print_error("Fork error");
+    if (pid == 0)
+    {
+        close(fd[0]);
+        child_time(argv, envp, fd);
+        exit(1);
+    }
+    else
+    {
+        close(fd[1]);
+        waitpid(pid, NULL, 0);
+        father_time(argv, envp, fd);
+    }
 	return (0);
 }
