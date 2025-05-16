@@ -6,31 +6,31 @@
 /*   By: mpena-zu <mpena-zu@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 14:14:58 by mpena-zu          #+#    #+#             */
-/*   Updated: 2025/05/14 14:35:02 by mpena-zu         ###   ########.fr       */
+/*   Updated: 2025/05/16 15:51:01 by mpena-zu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char    *path(char **envp, char *cmd1)
+char	*path(char **envp, char *cmd1)
 {
 	int		i;
-    char    **paths;
-    char    *real_path;
+	char	**paths;
+	char	*real_path;
 
 	i = 0;
-    if (!envp)
-        return (NULL);
-    while (envp[i] && ft_strncmp(envp[i], "PATH=", 5) != 0)
+	if (!envp)
+		return (NULL);
+	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5) != 0)
 		i++;
 	if (!envp[i])
-		return (NULL); 
-    paths = ft_split(envp[i] + 5, ':');
+		return (NULL);
+	paths = ft_split(envp[i] + 5, ':');
 	if (!paths)
 		return (NULL);
-    real_path = find_real_path(paths, cmd1);
-    free_time(paths);
-    return (real_path);
+	real_path = find_real_path(paths, cmd1);
+	free_time(paths);
+	return (real_path);
 }
 
 void	command_time(char **envp, char **cmd1)
@@ -98,7 +98,7 @@ void	pipex_manager(int *fd, char **argv, char **envp)
 {
 	pid_t	pid;
 	pid_t	pid2;
-	
+
 	pid = fork();
 	if (pid == -1)
 		print_error("Fork error");
@@ -109,7 +109,7 @@ void	pipex_manager(int *fd, char **argv, char **envp)
 	}
 	pid2 = fork();
 	if (pid2 == -1)
-			print_error("Fork error");
+		print_error("Fork error");
 	if (pid2 == 0)
 	{
 		close(fd[1]);
@@ -117,6 +117,6 @@ void	pipex_manager(int *fd, char **argv, char **envp)
 	}
 	close(fd[0]);
 	close(fd[1]);
-    waitpid(pid, 0, 0);
-    waitpid(pid2, 0, 0);
+	waitpid(pid, 0, 0);
+	waitpid(pid2, 0, 0);
 }
